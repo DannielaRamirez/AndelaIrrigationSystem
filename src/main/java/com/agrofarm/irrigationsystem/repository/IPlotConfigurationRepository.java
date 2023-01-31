@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface IPlotConfigurationRepository extends JpaRepository<PlotConfiguration, Long> {
-@Query(value= "select c.plot.id, c.slotTime from PlotConfiguration c where c.isActive = true")
-List<Object[]> findConfigurationActive();
+@Query(value= "select c from PlotConfiguration c where c.isActive = true")
+List<PlotConfiguration> findConfigurationActive();
 }

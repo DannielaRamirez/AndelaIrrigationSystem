@@ -1,18 +1,29 @@
 package com.agrofarm.irrigationsystem.exception;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-import java.time.LocalDateTime;
+import org.springframework.http.HttpStatus;
 
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @AllArgsConstructor
-@NoArgsConstructor
 public class ErrorResponse {
-    private LocalDateTime date;
+    private HttpStatus status;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyyMMdd hh:mm:ss")
+    private LocalDateTime timestamp;
     private String message;
-    private String resourceName;
+
+    public ErrorResponse(String mensaje){
+        this.message= mensaje;
+    }
+
+    public ErrorResponse(HttpStatus status, String mensaje){
+        this.status = status;
+        this.message= mensaje;
+    }
+
 }

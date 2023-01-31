@@ -1,5 +1,6 @@
 package com.agrofarm.irrigationsystem.service.impl;
 
+import com.agrofarm.irrigationsystem.entity.PlotConfiguration;
 import com.agrofarm.irrigationsystem.repository.IPlotConfigurationRepository;
 import com.agrofarm.irrigationsystem.service.IPlotConfigurationService;
 import lombok.AllArgsConstructor;
@@ -15,7 +16,7 @@ public class PlotConfigurationServiceImpl implements IPlotConfigurationService {
     private IPlotConfigurationRepository iPlotConfigurationRepository;
 
     @Override
-    public List<Object[]> findConfigurationActive() {
+    public List<PlotConfiguration> findConfigurationActive() {
         return iPlotConfigurationRepository.findConfigurationActive();
     }
 }

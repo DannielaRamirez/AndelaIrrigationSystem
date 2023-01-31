@@ -37,7 +37,7 @@ public class PlotServiceImpl implements IPlotService {
     public PlotDTO editPlot(PlotDTO plotDTO) {
         Plot existPlot = plotRepository.findById(plotDTO.getId())
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Identifier: " + plotDTO.getIdentifier() + "doesn't exist", HttpStatus.NOT_FOUND.toString()));
+                        new ResourceNotFoundException(plotDTO.getId(), HttpStatus.NOT_FOUND));
 
         if(plotDTO.getPlotConfiguration() != null){
             PlotConfiguration plotConfiguration =saveConfiguration(existPlot.getPlotConfiguration().getId(),plotDTO.getPlotConfiguration());
@@ -55,7 +55,7 @@ public class PlotServiceImpl implements IPlotService {
 
         PlotConfiguration exitPlotConfiguration = plotConfigurationRepository.findById(idPlotConfiguation)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("PlotConfiguration: " +plotConfigurationDTO.getId() +"doesn't exist", HttpStatus.NOT_FOUND.toString()));
+                        new ResourceNotFoundException(idPlotConfiguation , HttpStatus.NOT_FOUND));
 
         if(plotConfigurationDTO.getIdIrrigationType() != null){exitPlotConfiguration.setIdIrrigationType(plotConfigurationDTO.getIdIrrigationType());}
         if(plotConfigurationDTO.getDurationMinutes() != null){exitPlotConfiguration.setDurationMinutes(plotConfigurationDTO.getDurationMinutes());}

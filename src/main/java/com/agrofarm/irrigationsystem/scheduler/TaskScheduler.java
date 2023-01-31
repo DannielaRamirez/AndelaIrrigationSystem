@@ -1,14 +1,19 @@
 package com.agrofarm.irrigationsystem.scheduler;
 
+import com.agrofarm.irrigationsystem.entity.PlotConfiguration;
+import com.agrofarm.irrigationsystem.exception.ResourceNotConfigureException;
 import com.agrofarm.irrigationsystem.service.IConnectSensorService;
 import com.agrofarm.irrigationsystem.service.IPlotConfigurationService;
 import com.agrofarm.irrigationsystem.service.IUpsateStatusService;
 import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,35 +31,32 @@ public class TaskScheduler {
 
     @PostConstruct
     public void scheduleRunnableWithCronTrigger() {
-        Map<Long, Integer> plot = new HashMap<>();
-        List<Object[]> plotToIrrigator =plotConfigurationService.findConfigurationActive();
 
-        plotToIrrigator.stream().forEach(obj ->plot.put((Long) obj[0], (Integer)obj[1]));
+        List<PlotConfiguration> plotToIrrigator =plotConfigurationService.findConfigurationActive();
 
-        plot.entrySet()
-                .stream()
-                .forEach(p -> threadPoolTaskScheduler.scheduleAtFixedRate(new RunnableTask(p.getKey()), p.getValue()));
+        plotToIrrigator.stream()
+                        .forEach(p -> threadPoolTaskScheduler.scheduleAtFixedRate(new RunnableTask(p), p.getSlotTime()));
     }
 
     class RunnableTask implements Runnable {
-        private Long plotId;
-        public RunnableTask(Long plotId) {
-            this.plotId = plotId;
+        private PlotConfiguration plotConfiguration;
+        public RunnableTask(PlotConfiguration plotConfiguration) {
+            this.plotConfiguration = plotConfiguration;
         }
 
         @Override
         public void run() {
-            try{
-                log.info("CALL SENSOR plotId: " + plotId + " " + Thread.currentThread().getName());
-                int response = connectSensorService.connectServer(plotId);
-            if(response == 200){
-                upsateStatusService.updateStatus(plotId);
+            try {
+                log.info("CALL SENSOR plotId: " + plotConfiguration.getPlot().getId() + " " + Thread.currentThread().getName());
+                int response = connectSensorService.connectServer(plotConfiguration);
+                if (response == 200) {
+                    upsateStatusService.updateStatus(plotConfiguration.getPlot().getId());
+                }
+            }catch (Exception e){
+                Thread.currentThread().interrupt();
+
             }
-            }catch(Exception e){
-             log.error("Irrigation Fail" + e.getCause());
-             Thread.currentThread().interrupt();
-             throw new RuntimeException(e);
-            }
+
         }
     }
 }
